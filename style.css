@@ -1,0 +1,61 @@
+
+    /* Basic styling */
+    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+    header, footer { background: #f4f4f4; padding: 100px; text-align: center; }
+    main { margin: 20px 0; }
+    section { margin-bottom: 20px; }
+    /* form div { margin-bottom: 10px; } */
+    label { display: block; margin-bottom: 5px; }
+    input { width: 90%; padding: 8px; }
+    button { padding: 10px 15px; cursor: pointer; transition: background 1.3s ease-in-out; transition: padding 0.7s ease-in-out;}
+    button:hover { background: rgb(56, 33, 205); padding: 10px 30px;}
+    #jobList { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    ul { list-style-type: none; padding: 0; }
+    li { background: #f4f4f4; margin: 5px 0; padding: 10px; border-radius: 5px; }
+
+    .container {
+        display: grid; /* Enables CSS Grid */
+        grid-template-columns: 1fr 1fr; /* Creates 3 equal columns */
+        gap: 10px;
+        animation: fadeIn 1s ease-in-out;
+        }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+        }
+
+    .box {
+        width: 100px;
+        height: 100px;
+        background: steelblue;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        animation: fadeIn 2s ease-in-out;
+        }
+
+    .navbar {
+        display: flex; /* Enable Flexbox */
+        justify-content: space-around; /* Even spacing */
+        align-items: center; /* Align items vertically */
+        background: #333; 
+        padding: 25px;
+        animation: fadeIn 1s ease-in-out;
+        }
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        }   
+    .navbar a:hover {
+        color: yellow;
+        font-size: 22px;
+        }
+       
+    .dark-mode {
+        background-color: black;
+        color: white;
+    }
