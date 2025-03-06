@@ -1,12 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
+<link rel="stylesheet" href="style.css">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Project</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Submissions</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
 </head>
 <body>
-    <h1>Hello, GitHub Pages!</h1>
-    <p>This is my first deployed site.</p>
+  <button id="darkModeBtn">Toggle Dark Mode</button>
+  <header>
+    <h1 id="h1">Job Submission Form</h1>
+  </header>
+
+  <nav class="navbar">
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Projects</a>
+    <a href="#">Contact</a>
+  </nav>
+  
+
+  <button id="examp">larger</button>
+  <button id="examp2">smaller</button>
+  <button id="joke">random joke</button>
+
+  <div class="container">
+    <div class="box">Box 1</div>
+    <div class="box">Box 2</div>
+    <div class="box">Box 3</div>
+    <div class="box">Box 4</div>
+  </div>
+
+  <div class="container">
+    
+        <!-- Job Submission Section -->
+        <section id="jobSubmission">
+        <h2>Submit a Job</h2>
+        <form id="jobForm">
+            <div>
+                <label for="jobName">Job Name:</label>
+                <input type="text" id="jobName" name="jobName" required />
+            </div>
+            <div>
+                <label for="numEmployees">Number of Employees:</label>
+                <input type="number" id="numEmployees" name="numEmployees" required min="1" />
+            </div>
+            <button type="submit">Submit Job</button>
+        </form>
+        </section>
+
+        <!-- Job List Section -->
+        <section id="jobList">
+            <h2>Submitted Jobs</h2>
+            <ul id="jobEntries"></ul>
+            <button id="downloadExcel">Download as Excel</button>
+        </section>
+
+        <!-- File Upload Section -->
+        <section id="fileUpload">
+            <h2>Upload Excel File</h2>
+            <input type="file" id="uploadFile" accept=".xlsx" />
+        </section>    
+    
+  </div>
+  <input type="text" id="textInput" placeholder="Type something...">
+  <p id="output"></p>
+  <footer>
+    <p>&copy; 2025 Job Listings. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Get references to form and job list
+    const jobForm = document.getElementById('jobForm');
+    const jobEntries = document.getElementById('jobEntries');
+    const downloadBtn = document.getElementById('downloadExcel');
+    const uploadInput = document.getElementById('uploadFile');
+
+    var siz = 30;
+
+    async function fetchParallel() {
+      try {
+        let [userResponse, jokeResponse] = await Promise.all([
+          fetch("https://randomuser.me/api/"),
+          fetch("https://official-joke-api.appspot.com/random_joke")
+        ]);
+
+        let userData = await userResponse.json();
+        let jokeData = await jokeResponse.json();
+
+        console.log("User:", userData.results[0].name.first, userData.results[0].name.last);
+        console.log("Joke:", jokeData.setup, jokeData.punchline);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    document.getElementById('joke').addEventListener('click',fetchParallel);
+    
+    
+    document.getElementById('examp').addEventListener('click', function() {
+
+      siz += 5;
+      document.getElementById('h1').style.fontSize =  siz+ "px";
+      this.textContent = siz;
+      document.getElementById('examp2').textContent =siz;
+      console.log(siz);
+    }
+    );
+    document.getElementById('examp2').addEventListener('click', function() {
+      siz -= 5;
+      document.getElementById('h1').style.fontSize =  siz+ "px";
+      console.log(siz);
+    }
+    );
+    // var dark_mode = 0;
+    document.getElementById('darkModeBtn').addEventListener('click', function(){
+      console.log(document.body.classList);
+      document.body.classList.toggle("dark-mode");
+      console.log(document.body.classList);
+    })
+    document.getElementById('textInput').addEventListener('input', function(){
+      document.getElementById('output').textContent = this.value 
+    })
+    // Array to store submitted jobs
+    let jobs = [];
+
+    // Form submission event listener
+    jobForm.addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      // Get job details from input fields
+      const jobName = document.getElementById('jobName').value;
+      const numEmployees = document.getElementById('numEmployees').value;
+
+      // Store job data in the array
+      jobs.push({ jobName, numEmployees });
+
+      // Update the job list display
+      updateJobList();
+      
+
+      // Clear the form inputs
+      jobForm.reset();
+    });
+    
+    // Function to update job list display
+    function updateJobList() {
+      jobEntries.innerHTML = ""; // Clear existing list
+
+      jobs.forEach((job, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${job.jobName}</strong> - ${job.numEmployees} employees`;
+        jobEntries.appendChild(li);
+      });
+    }
+    // Function to download job list as Excel file
+    function downloadExcel() {
+      if (jobs.length === 0) {
+        alert("No jobs to export!");
+        return;
+      }
+
+      // Create a new worksheet and workbook
+      const ws = XLSX.utils.json_to_sheet(jobs);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Jobs");
+
+      // Save the file
+      XLSX.writeFile(wb, "Job_List.xlsx");
+    }
+    // Function to upload an Excel file and populate the job list
+    function uploadExcel(event) {
+      const file = event.target.files[0];
+
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Convert sheet data to JSON
+        const uploadedJobs = XLSX.utils.sheet_to_json(sheet);
+
+        if (uploadedJobs.length === 0) {
+          alert("The uploaded file is empty or incorrectly formatted.");
+          return;
+        }
+
+        // Replace current job list with uploaded data
+        jobs = uploadedJobs;
+        updateJobList();
+      };
+    }
+
+    // Attach event listener to download button
+    downloadBtn.addEventListener('click', downloadExcel);
+    uploadInput.addEventListener('change', uploadExcel);
+    
+    
+  </script>
+  
 </body>
 </html>
